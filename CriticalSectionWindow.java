@@ -1,35 +1,48 @@
+import java.awt.BorderLayout;
+import java.util.ArrayList;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 
-public class CriticalSectionWindow{
+public class CriticalSectionWindow {
     private int WIDTH = 700;
     private int HEIGTH = 600;
     private JFrame csWindowFrame;
-    
+    private ArrayList<MyThread> threads;
 
-    public CriticalSectionWindow(String name){
+    public CriticalSectionWindow(String name) {
         csWindowFrame = new JFrame(name);
+        csWindowFrame.setLayout(new BorderLayout());
         csWindowFrame.setSize(WIDTH, HEIGTH);
         csWindowFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
+        threads = new ArrayList<>();
     }
 
-    public void createAndShowGUI(int threadNumber, int criticalTime){
-        
-        String[] columnNames = {"Name", "Accesses", "Waiting", "Critical Section", "Dying", "Dead"};
-        Object[][] threadData = new Object[threadNumber][];
+    public void createAndShowGUI(int threadNumber, int criticalTime) {
+        JPanel killPanel = new JPanel();
+        JButton killButton = new JButton("Kill Threads");
+        killPanel.add(killButton);
+        csWindowFrame.add(killPanel, BorderLayout.SOUTH);
+
+        DataCenter dataCenter = new DataCenter();
+        String[] columnNames = { "Name", "Accesses", "Waiting", "Critical Section", "Dying", "Dead" };
+
+        MyTableModel tableModel = new MyTableModel(columnNames, 0);
+        JTable table = new JTable(tableModel);
+        tableModel.setRowCount(0);
 
         for (int i = 0; i < threadNumber; i++) {
-            threadData[i] = new Object[]{"Thread "+ i,0};
+            MyThread t = new MyThread(dataCenter, criticalTime, i, tableModel);
+            tableModel.addRow(new Object[] { t.getName(), t.getAccesses(), t.getIsWaiting(),
+                    !t.getIsWaiting(), Boolean.FALSE, Boolean.FALSE });
+            threads.add(t);
+            t.start();
         }
 
-        JTable table = new JTable(new DefaultTableModel(threadData, columnNames));
-
-
-        JScrollPane scrollPane = new JScrollPane(table);
-        csWindowFrame.add(scrollPane);
+        csWindowFrame.add(new JScrollPane(table), BorderLayout.CENTER);
         csWindowFrame.setVisible(true);
+
     }
 }
