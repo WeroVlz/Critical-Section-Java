@@ -3,8 +3,9 @@ public class MyThread extends Thread {
     private final int sleepTime;
     private final int threadIndex;
     private final MyTableModel tableModel;
-    private Boolean isWaiting = true;
     private Integer accesses = 0;
+    private Boolean isWaiting = true;
+    private Boolean isDying = false;
 
     public Integer getAccesses() {
         return accesses;
@@ -24,20 +25,26 @@ public class MyThread extends Thread {
 
     @Override
     public void run() {
-        while (true) {
+        while (!isDying) {
             try {
                 synchronized (dataCenter) {
                     accesses++;
                     isWaiting = false;
                     dataCenter.increment();
-                    tableModel.updateRow(threadIndex, getName(), accesses, isWaiting, !isWaiting, false, false);
+                    tableModel.updateRow(threadIndex, getName(), getAccesses(), getIsWaiting(), !getIsWaiting(), false, false);
                     Thread.sleep(sleepTime);
                 }
                 isWaiting = true;
-                tableModel.updateRow(threadIndex, getName(), accesses, isWaiting, !isWaiting, false, false);
+                tableModel.updateRow(threadIndex, getName(), getAccesses(), getIsWaiting(), !getIsWaiting(), false, false);
             } catch (InterruptedException e) {
                 System.out.println(e);
             }
         }
+        tableModel.updateRow(threadIndex, getName(), getAccesses(), false, false, false, true);
+    }
+
+    public void kill(){
+        isDying = true;
+        tableModel.updateRow(threadIndex, getName(), getAccesses(), false, false, isDying, !isDying);
     }
 }

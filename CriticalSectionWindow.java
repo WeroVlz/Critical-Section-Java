@@ -21,10 +21,6 @@ public class CriticalSectionWindow {
     }
 
     public void createAndShowGUI(int threadNumber, int criticalTime) {
-        JPanel killPanel = new JPanel();
-        JButton killButton = new JButton("Kill Threads");
-        killPanel.add(killButton);
-        csWindowFrame.add(killPanel, BorderLayout.SOUTH);
 
         DataCenter dataCenter = new DataCenter();
         String[] columnNames = { "Name", "Accesses", "Waiting", "Critical Section", "Dying", "Dead" };
@@ -40,6 +36,17 @@ public class CriticalSectionWindow {
             threads.add(t);
             t.start();
         }
+
+        JPanel killPanel = new JPanel();
+        JButton killButton = new JButton("Kill Threads");
+
+        killButton.addActionListener(e -> {
+            for(MyThread thread : threads){
+                thread.kill();
+            }
+        });
+        killPanel.add(killButton);
+        csWindowFrame.add(killPanel, BorderLayout.SOUTH);
 
         csWindowFrame.add(new JScrollPane(table), BorderLayout.CENTER);
         csWindowFrame.setVisible(true);
