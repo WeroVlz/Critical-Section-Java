@@ -7,6 +7,7 @@ public class CriticalSectionWindow{
     private int WIDTH = 700;
     private int HEIGTH = 600;
     private JFrame csWindowFrame;
+    
 
     public CriticalSectionWindow(String name){
         csWindowFrame = new JFrame(name);
